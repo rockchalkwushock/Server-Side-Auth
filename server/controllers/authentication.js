@@ -1,5 +1,14 @@
+import jwt from 'jwt-simple';
 import User from '../model/user';
+import config from '../../config';
 
+function tokenForUser(user) {
+  // sub === subject
+  // the subject of this token is this specific user.
+  // iat === issued at time.
+  const timestamp = new Date().getTime();
+  return jwt.encode({ sub: user.id, iat: timestamp }, config.secret);
+}
 
 const Authentication = {
   signup: function(req, res, next) {
@@ -15,19 +24,11 @@ const Authentication = {
 
       const user = new User({ email, password });
 
-      user.save()
-          .then(user => {
-            res.json({ success: true });
-          })
-          .catch(err => {
-            next(err);
-          });
-
-      // user.save(function(err) {
-      //   if(err) { return next(err); }
-      //   // Respond to request indicating the user was created.
-      //   res.json({ success: true });
-      // });
+      user.save(function(err) {
+        if(err) { return next(err); }
+        // Respond to request indicating the user was created.
+        res.json({ token: tokenForUser(user) });
+      });
     });
 
     // If a user with email does not exist, create and save user record.
