@@ -19,7 +19,7 @@ userSchema.pre('save', function(next) {
   bcrypt.genSalt(10, function(err, salt) {
     if(err) { return next(err); }
     // hash (encrypt) our password using the salt.
-    bcrypt.hash(user.password, salt, null, function(err, hash) {
+    bcrypt.hash(user.password, salt, function(err, hash) {
       if(err) { return next(err); }
       // Overwrite plain text password
       // with encrypted password.
