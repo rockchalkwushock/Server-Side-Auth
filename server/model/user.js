@@ -12,15 +12,16 @@ const userSchema = new Schema({
 });
 // On Save Hook, encrypt password.
 // Before saving a model, run this function.
+// NOTE: MUST USE FUNCTION FOR BINDING OF THIS!!!
 userSchema.pre('save', function(next) {
   // Get access to the user model.
   const user = this;
   // Generate a salt, then run callback
-  bcrypt.genSalt(10, function(err, salt) {
-    if(err) { return next(err); }
+  bcrypt.genSalt(10, (err, salt) => {
+    if(err) next(err);
     // hash (encrypt) our password using the salt.
-    bcrypt.hash(user.password, salt, function(err, hash) {
-      if(err) { return next(err); }
+    bcrypt.hash(user.password, salt, (err, hash) => {
+      if(err) next(err);
       // Overwrite plain text password
       // with encrypted password.
       user.password = hash;
@@ -28,6 +29,14 @@ userSchema.pre('save', function(next) {
     });
   });
 });
+
+// NOTE: MUST USE FUNCTION FOR BINDING OF THIS!!!
+userSchema.methods.comparePassword = function(canidatePassword, callback) {
+  bcrypt.compare(canidatePassword, this.password, (err, isMatch) => {
+    if (err) callback(err);
+    callback(null, isMatch);
+  });
+}
 
 // Create the model class
 const User = mongoose.model('users', userSchema);
