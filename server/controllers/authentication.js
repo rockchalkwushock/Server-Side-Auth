@@ -32,9 +32,9 @@ export const signup = (req, res, next) => {
         user.save()
             .then(user => {
             // Return JWT
-              res.json({token: tokenForUser(user)});
+              res.status(201).json({ success: true, token: tokenForUser(user)});
             })
             // Return error message.
-            .catch(err => res.status(422).json({ success: false, err }));
+            .catch(error => res.status(422).json({ success: false, error }));
     });
 }
